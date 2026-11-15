@@ -1,6 +1,7 @@
 "use client";
 
-import { Service, Booking, Profile, TechnicianProfile, BookingStatus } from "../supabase/database.types";
+import { useSyncExternalStore } from "react";
+import { Service, Booking, Profile, TechnicianProfile } from "../supabase/database.types";
 import { calculateDynamicPrice } from "../pricing/calculator";
 
 // Seed Services for Karachi AC & Home Appliance Repair
@@ -222,6 +223,7 @@ class MarketplaceStore {
   private technicians: VerifiedTechUser[] = [...INITIAL_TECHNICIANS];
   private services: Service[] = [...INITIAL_SERVICES];
   private listeners: (() => void)[] = [];
+  private version: number = 0;
 
   constructor() {
     if (typeof window !== "undefined") {
@@ -229,6 +231,7 @@ class MarketplaceStore {
       if (savedBookings) {
         try {
           this.bookings = JSON.parse(savedBookings);
+          this.version++;
         } catch (e) {
           console.error("Failed to parse stored bookings", e);
         }
@@ -251,7 +254,12 @@ class MarketplaceStore {
   }
 
   private notify() {
+    this.version++;
     this.listeners.forEach((l) => l());
+  }
+
+  public getVersion(): number {
+    return this.version;
   }
 
   public getServices(): Service[] {
@@ -272,7 +280,7 @@ class MarketplaceStore {
     );
   }
 
-  public getAvailableJobsForTech(area?: string): Booking[] {
+  public getAvailableJobsForTech(): Booking[] {
     return this.bookings.filter((b) => b.status === "pending" && b.tech_id === null);
   }
 
@@ -434,3 +442,12 @@ class MarketplaceStore {
 }
 
 export const marketplace = new MarketplaceStore();
+
+export function useMarketplace(): MarketplaceStore {
+  useSyncExternalStore(
+    (callback) => marketplace.subscribe(callback),
+    () => marketplace.getVersion(),
+    () => 0
+  );
+  return marketplace;
+}

@@ -1,49 +1,30 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import Image from "next/image";
 import {
   ShieldCheck,
-  UserCheck,
   CheckCircle,
   XCircle,
-  Award,
-  AlertCircle,
-  TrendingUp,
   Users,
   Wrench,
-  Search,
-  Filter,
 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
-import { marketplace, VerifiedTechUser } from "@/lib/store/marketplaceStore";
-import { Booking } from "@/lib/supabase/database.types";
+import { useMarketplace } from "@/lib/store/marketplaceStore";
 import { formatPKR } from "@/lib/utils";
 
 export default function AdminPage() {
   const { t } = useLanguage();
-  const [technicians, setTechnicians] = useState<VerifiedTechUser[]>([]);
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const marketplaceStore = useMarketplace();
+  const technicians = marketplaceStore.getTechnicians();
+  const bookings = marketplaceStore.getBookings();
+
   const [notice, setNotice] = useState<string | null>(null);
 
-  const refreshData = () => {
-    setTechnicians([...marketplace.getTechnicians()]);
-    setBookings([...marketplace.getBookings()]);
-  };
-
-  useEffect(() => {
-    refreshData();
-    const unsubscribe = marketplace.subscribe(() => {
-      refreshData();
-    });
-    return () => unsubscribe();
-  }, []);
-
   const handleToggleVetting = (techId: string, field: "nadra" | "police") => {
-    marketplace.toggleTechVetting(techId, field);
+    marketplaceStore.toggleTechVetting(techId, field);
     setNotice(`Updated ${field.toUpperCase()} verification status.`);
     setTimeout(() => setNotice(null), 3000);
-    refreshData();
   };
 
   const completedCount = bookings.filter((b) => b.status === "completed").length;
@@ -155,10 +136,13 @@ export default function AdminPage() {
                 <tr key={tUser.profile.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-3">
-                      <img
-                        src={tUser.profile.avatar_url || ""}
+                      <Image
+                        src={tUser.profile.avatar_url || "https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=100"}
                         alt={tUser.profile.name}
+                        width={36}
+                        height={36}
                         className="w-9 h-9 rounded-full object-cover border border-slate-200"
+                        unoptimized
                       />
                       <div>
                         <span className="font-bold text-slate-900 dark:text-white block">

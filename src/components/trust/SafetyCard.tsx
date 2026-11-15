@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { ShieldCheck, Share2, PhoneCall, Check, ExternalLink, Shield } from "lucide-react";
 import { Booking } from "@/lib/supabase/database.types";
 import { TrustBadge } from "./TrustBadge";
@@ -70,10 +71,13 @@ export function SafetyCard({ booking }: SafetyCardProps) {
       {/* Main Details */}
       <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <img
+          <Image
             src={tech.avatar_url || "https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=400&auto=format&fit=crop&q=80"}
             alt={tech.name}
+            width={56}
+            height={56}
             className="w-14 h-14 rounded-full object-cover border-2 border-emerald-500 shadow-xs"
+            unoptimized
           />
           <div>
             <h4 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">

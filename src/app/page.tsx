@@ -1,16 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import {
   ShieldCheck,
-  CheckCircle,
   Clock,
   ArrowRight,
-  ShieldAlert,
-  Zap,
   Lock,
-  PhoneCall,
   Sparkles,
   MapPin,
   FileCheck2,
@@ -22,7 +18,7 @@ import { DynamicPriceCalculator } from "@/components/pricing/DynamicPriceCalcula
 import { marketplace } from "@/lib/store/marketplaceStore";
 
 export default function HomePage() {
-  const { t, locale } = useLanguage();
+  const { t } = useLanguage();
   const services = marketplace.getServices();
   const technicians = marketplace.getTechnicians();
 

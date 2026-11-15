@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useSyncExternalStore } from "react";
 import { translations, Locale } from "./translations";
 
 interface LanguageContextType {
@@ -12,25 +12,43 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+function subscribeLocale(callback: () => void) {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener("storage", callback);
+  window.addEventListener("mustanad_locale_change", callback);
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener("mustanad_locale_change", callback);
+  };
+}
+
+function getLocaleSnapshot(): Locale {
+  if (typeof window === "undefined") return "en";
+  const saved = localStorage.getItem("mustanad_locale");
+  return saved === "ur" ? "ur" : "en";
+}
+
+function getServerLocaleSnapshot(): Locale {
+  return "en";
+}
+
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("en");
-  const [mounted, setMounted] = useState(false);
+  const locale = useSyncExternalStore(
+    subscribeLocale,
+    getLocaleSnapshot,
+    getServerLocaleSnapshot
+  );
 
   useEffect(() => {
-    setMounted(true);
-    const saved = localStorage.getItem("mustanad_locale") as Locale | null;
-    if (saved && (saved === "en" || saved === "ur")) {
-      setLocaleState(saved);
-      document.documentElement.dir = saved === "ur" ? "rtl" : "ltr";
-      document.documentElement.lang = saved;
-    }
-  }, []);
+    document.documentElement.dir = locale === "ur" ? "rtl" : "ltr";
+    document.documentElement.lang = locale;
+  }, [locale]);
 
   const setLocale = (newLocale: Locale) => {
-    setLocaleState(newLocale);
-    localStorage.setItem("mustanad_locale", newLocale);
-    document.documentElement.dir = newLocale === "ur" ? "rtl" : "ltr";
-    document.documentElement.lang = newLocale;
+    if (typeof window !== "undefined") {
+      localStorage.setItem("mustanad_locale", newLocale);
+      window.dispatchEvent(new Event("mustanad_locale_change"));
+    }
   };
 
   const t = translations[locale] || translations.en;

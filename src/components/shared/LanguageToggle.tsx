@@ -2,7 +2,6 @@
 
 import React from "react";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
-import { Languages } from "lucide-react";
 
 export function LanguageToggle() {
   const { locale, setLocale } = useLanguage();

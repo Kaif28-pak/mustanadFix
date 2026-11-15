@@ -1,51 +1,32 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import {
-  ShieldCheck,
   Lock,
-  PhoneCall,
-  Clock,
-  MapPin,
-  AlertCircle,
   XCircle,
-  FileText,
   CheckCircle2,
-  Share2,
-  Sparkles,
   HelpCircle,
 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
-import { marketplace } from "@/lib/store/marketplaceStore";
-import { Booking } from "@/lib/supabase/database.types";
+import { useMarketplace } from "@/lib/store/marketplaceStore";
 import { BookingTimeline } from "@/components/trust/BookingTimeline";
 import { SafetyCard } from "@/components/trust/SafetyCard";
 import { formatPKR } from "@/lib/utils";
 
 export default function CustomerDashboardPage() {
   const { t } = useLanguage();
-  const [booking, setBooking] = useState<Booking | undefined>(undefined);
+  const marketplaceStore = useMarketplace();
+  const booking = marketplaceStore.getActiveCustomerBooking("cust-demo");
+
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [disputeModalOpen, setDisputeModalOpen] = useState(false);
   const [disputeReason, setDisputeReason] = useState("");
 
-  useEffect(() => {
-    // Initial fetch
-    setBooking(marketplace.getActiveCustomerBooking("cust-demo"));
-
-    // Subscribe to realtime changes in marketplace store
-    const unsubscribe = marketplace.subscribe(() => {
-      setBooking(marketplace.getActiveCustomerBooking("cust-demo"));
-    });
-
-    return () => unsubscribe();
-  }, []);
-
   const handleConfirmCancel = () => {
     if (booking && cancelReason.trim()) {
-      marketplace.cancelBooking(booking.id, cancelReason);
+      marketplaceStore.cancelBooking(booking.id, cancelReason);
       setCancelModalOpen(false);
       setCancelReason("");
     }
@@ -248,17 +229,17 @@ export default function CustomerDashboardPage() {
               <button
                 type="button"
                 onClick={() => setCancelModalOpen(false)}
-                className="px-4 py-2 rounded-xl text-xs font-medium border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300"
+                className="px-4 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
               >
-                Keep Booking
+                Back
               </button>
               <button
                 type="button"
                 onClick={handleConfirmCancel}
                 disabled={!cancelReason.trim()}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-slate-800 hover:bg-slate-900 disabled:opacity-50 transition-colors"
+                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-50 transition-colors"
               >
-                {t.dashboard.confirmCancel}
+                Confirm Cancellation
               </button>
             </div>
           </div>
@@ -269,37 +250,41 @@ export default function CustomerDashboardPage() {
       {disputeModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
           <div className="w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 space-y-4 shadow-xl">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">
-              Raise a Service Dispute
-            </h3>
+            <div className="flex items-center gap-2 text-violet-600 dark:text-violet-400">
+              <HelpCircle className="w-5 h-5" />
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                Customer Support Escalation
+              </h3>
+            </div>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Your inquiry will be escalated directly to our Karachi Operations Lead for immediate intervention under the PKR 50,000 SafeGuard Guarantee.
+              Our Karachi Trust & Safety Desk is available 24/7. Describe the issue or concern below:
             </p>
             <textarea
               rows={3}
               value={disputeReason}
               onChange={(e) => setDisputeReason(e.target.value)}
-              placeholder="Describe the complaint or concern..."
+              placeholder="E.g. Technician delayed, discrepancy in quote, or safety query..."
               className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-violet-500/30"
             />
             <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => setDisputeModalOpen(false)}
-                className="px-4 py-2 rounded-xl text-xs font-medium border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300"
+                className="px-4 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
               >
                 Close
               </button>
               <button
                 type="button"
                 onClick={() => {
-                  alert("Dispute ticket opened. Reference #DSP-" + Date.now().toString().slice(-4));
+                  alert("Your dispute ticket #TK-8492 has been registered. An escalation manager is contacting you via phone/WhatsApp.");
                   setDisputeModalOpen(false);
+                  setDisputeReason("");
                 }}
                 disabled={!disputeReason.trim()}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-violet-700 hover:bg-violet-800 disabled:opacity-50 transition-colors"
+                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 transition-colors disabled:opacity-50"
               >
-                Submit Dispute
+                Submit Ticket
               </button>
             </div>
           </div>

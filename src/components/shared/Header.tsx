@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShieldCheck, Wrench, Menu, X, User, Shield, Briefcase, PlusCircle } from "lucide-react";
+import { ShieldCheck, Menu, X } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageToggle } from "./LanguageToggle";
 import { useLanguage } from "@/lib/i18n/LanguageContext";

@@ -22,7 +22,7 @@ export function calculateDynamicPrice({
 }: PricingCalculationInput): PricingCalculationResult {
   const safeFloor = Math.max(0, Math.floor(floorLevel || 0));
   let floorSurcharge = 0;
-  let fullStairSurcharge = safeFloor * floorSurchargeRate;
+  const fullStairSurcharge = safeFloor * floorSurchargeRate;
 
   if (safeFloor > 0) {
     if (hasElevator) {

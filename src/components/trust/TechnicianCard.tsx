@@ -33,10 +33,13 @@ export function TechnicianCard({ profile, techProfile, compact = false }: Techni
       <div className="flex items-start gap-4">
         {/* Avatar with Verified Ring */}
         <div className="relative shrink-0">
-          <img
+          <Image
             src={profile.avatar_url || "https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=400&auto=format&fit=crop&q=80"}
             alt={profile.name}
+            width={64}
+            height={64}
             className="w-16 h-16 rounded-full object-cover border-2 border-emerald-500 shadow-xs"
+            unoptimized
           />
           <div className="absolute -bottom-1 -right-1 bg-emerald-600 text-white rounded-full p-0.5 border-2 border-white dark:border-slate-900">
             <CheckCircle2 className="w-3.5 h-3.5" />

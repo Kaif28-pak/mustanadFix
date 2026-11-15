@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, Suspense } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Wrench,
@@ -11,12 +12,9 @@ import {
   ArrowLeft,
   Building,
   Upload,
-  Image as ImageIcon,
   ShieldCheck,
-  Clock,
   Sparkles,
   AlertCircle,
-  FileText,
 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { marketplace } from "@/lib/store/marketplaceStore";
@@ -283,10 +281,13 @@ function BookingWizardContent() {
 
               {issueImage && (
                 <div className="flex items-center gap-2 p-2 rounded-xl bg-slate-100 dark:bg-slate-800">
-                  <img
+                  <Image
                     src={issueImage}
                     alt="Uploaded issue"
+                    width={48}
+                    height={48}
                     className="w-12 h-12 object-cover rounded-lg border border-slate-300 dark:border-slate-700"
+                    unoptimized
                   />
                   <div className="text-xs">
                     <span className="font-semibold text-emerald-600 block">Photo attached</span>

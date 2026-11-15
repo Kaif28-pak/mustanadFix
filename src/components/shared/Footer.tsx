@@ -6,7 +6,7 @@ import { ShieldCheck, Phone, Mail, MapPin, Heart, Shield } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export function Footer() {
-  const { t, locale } = useLanguage();
+  const { t } = useLanguage();
 
   return (
     <footer className="border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 transition-colors pt-12 pb-8">

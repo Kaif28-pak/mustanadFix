@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Calculator, ArrowRight, Building, Check, Info } from "lucide-react";
+import { Calculator, ArrowRight, Building, Check } from "lucide-react";
 import { Service } from "@/lib/supabase/database.types";
 import { calculateDynamicPrice } from "@/lib/pricing/calculator";
 import { formatPKR } from "@/lib/utils";

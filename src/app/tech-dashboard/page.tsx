@@ -1,13 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Wrench,
   MapPin,
-  Building,
   CheckCircle,
   Truck,
-  PlayCircle,
   Award,
   Lock,
   PhoneCall,
@@ -18,14 +16,16 @@ import {
   EyeOff,
 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
-import { marketplace } from "@/lib/store/marketplaceStore";
+import { useMarketplace } from "@/lib/store/marketplaceStore";
 import { Booking } from "@/lib/supabase/database.types";
 import { formatPKR } from "@/lib/utils";
 
 export default function TechDashboardPage() {
   const { t } = useLanguage();
-  const [availableJobs, setAvailableJobs] = useState<Booking[]>([]);
-  const [assignedJobs, setAssignedJobs] = useState<Booking[]>([]);
+  const marketplaceStore = useMarketplace();
+  const availableJobs = marketplaceStore.getAvailableJobsForTech();
+  const assignedJobs = marketplaceStore.getAssignedJobsForTech("tech-101");
+
   const [selectedArea, setSelectedArea] = useState<string>("All");
   const [pinModalOpen, setPinModalOpen] = useState(false);
   const [activeJobForPin, setActiveJobForPin] = useState<Booking | null>(null);
@@ -33,27 +33,12 @@ export default function TechDashboardPage() {
   const [pinError, setPinError] = useState<string | null>(null);
   const [actionSuccessMsg, setActionSuccessMsg] = useState<string | null>(null);
 
-  // Load jobs from marketplace store
-  const refreshJobs = () => {
-    setAvailableJobs(marketplace.getAvailableJobsForTech());
-    setAssignedJobs(marketplace.getAssignedJobsForTech("tech-101"));
-  };
-
-  useEffect(() => {
-    refreshJobs();
-    const unsubscribe = marketplace.subscribe(() => {
-      refreshJobs();
-    });
-    return () => unsubscribe();
-  }, []);
-
   // Atomic Accept Job
   const handleAcceptJob = (bookingId: string) => {
-    const res = marketplace.acceptJob(bookingId, "tech-101");
+    const res = marketplaceStore.acceptJob(bookingId, "tech-101");
     if (res.success) {
       setActionSuccessMsg(t.techDashboard.acceptedSuccess);
       setTimeout(() => setActionSuccessMsg(null), 3500);
-      refreshJobs();
     } else {
       alert(res.message);
     }
@@ -61,8 +46,7 @@ export default function TechDashboardPage() {
 
   // Dispatch "On the way"
   const handleOnTheWay = (bookingId: string) => {
-    marketplace.setTechOnTheWay(bookingId);
-    refreshJobs();
+    marketplaceStore.setTechOnTheWay(bookingId);
   };
 
   // Verify PIN Handshake
@@ -70,13 +54,12 @@ export default function TechDashboardPage() {
     if (!activeJobForPin) return;
     setPinError(null);
 
-    const res = marketplace.verifyJobPin(activeJobForPin.id, inputPin);
+    const res = marketplaceStore.verifyJobPin(activeJobForPin.id, inputPin);
     if (res.success) {
       setPinModalOpen(false);
       setInputPin("");
       setActionSuccessMsg("4-Digit PIN Handshake Verified! Job status is now IN PROGRESS.");
       setTimeout(() => setActionSuccessMsg(null), 3500);
-      refreshJobs();
     } else {
       setPinError(res.message);
     }
@@ -84,10 +67,9 @@ export default function TechDashboardPage() {
 
   // Complete Job
   const handleCompleteJob = (bookingId: string) => {
-    marketplace.completeJob(bookingId);
+    marketplaceStore.completeJob(bookingId);
     setActionSuccessMsg("Job marked as Completed! PKR payout queued.");
     setTimeout(() => setActionSuccessMsg(null), 3500);
-    refreshJobs();
   };
 
   return (
